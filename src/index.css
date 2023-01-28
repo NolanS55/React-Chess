@@ -1,9 +1,30 @@
 .chessBoard {
   display: grid;
-  grid-template-columns: auto auto auto auto auto auto auto auto;
+  grid-template-columns: repeat(8, 6.25vw);
   width: 50vw;
   height: 50vw;
   margin: auto;
-  background-color: blue;
+}
 
+.square {
+  width: 6.25vw;
+  height: 6.25vw;
+  overflow: auto;
+  background-color:white;
+}
+
+button {
+  width: 6.25vw;
+  height: 6.25vw;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  background-color: transparent;
+  align-items: center;
+}
+
+button img {
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0;
 }

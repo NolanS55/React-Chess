@@ -17,8 +17,23 @@ import { render } from '@testing-library/react'
 
 const pawn = {
     value : 1,
-    move : function(val) {
-        console.log(val)
+    firstMove: true,
+    move : function(oldPos, newPos, board) {
+        console.log((newPos < oldPos) ? "yes" : " no")
+        if((board[oldPos].side === 'w' && newPos > oldPos) || (board[oldPos].side === 'b' && newPos < oldPos)) {
+            return false;
+        }
+        let dif = newPos - oldPos;//temporary converts units to positive to see if piece is moving correctly
+        if(dif < 0) {
+            dif = dif * -1
+        }
+        if(((dif === 16 && this.firstMove === true) || (dif === 8)) && board[newPos].piece === null) {//checks for piece moving foward
+            this.firstMove = false;
+            return true;
+        }
+        if((dif === 9 || dif === 7) && ((board[newPos].side != null) && board[oldPos].side != board[newPos].side)) {//capture check
+            return true;
+        }
     }
 }
 
@@ -65,8 +80,10 @@ const king = {
 
 var turn = 'w'
 var waiting = 'b'
+var primary = -1;
 
 const Board = () => {
+    
     const [board, setBoard] = useState([{piece : Object.create(rook), icon : bRook, id : 1, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 2, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 3, side : 'b', higlight : false}, {piece : Object.create(queen), icon : bQueen, id : 4, side : 'b', higlight : false}, {piece : Object.create(king), icon : bKing, id : 5, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 6, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 7, side : 'b', higlight : false}, {piece : Object.create(rook), icon : bRook, id : 8, side : 'b', higlight : false},
                                         {piece : Object.create(pawn), icon : bPawn, id : 9, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 10, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 11, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 12, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 13, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 14, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 15, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 16, side : 'b', highlight : false},
                                         {piece : null, icon : "", id : 17, side : null, highlight : false}, {piece : null, icon : "", id : 18, side : null, highlight : false}, {piece : null, icon : "", id : 19, side : null, highlight : false}, {piece : null, icon : "", id : 20, side : null, highlight : false}, {piece : null, icon : "", id : 21, side : null, highlight : false}, {piece : null, icon : "", id : 22, side : null, highlight : false}, {piece : null, icon : "", id : 23, side : null, highlight : false}, {piece : null, icon : "", id : 24, side : null, highlight : false},
@@ -76,26 +93,34 @@ const Board = () => {
                                         {piece : Object.create(pawn), icon : wPawn, id : 49, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 50, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 51, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 52, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 53, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 54, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 55, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 56, side : 'w', highlight : false},
                                         {piece : Object.create(rook), icon : wRook, id : 57, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 58, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 59, side : 'w', higlight : false}, {piece : Object.create(queen), icon : wQueen, id : 60, side : 'w', higlight : false}, {piece : Object.create(king), icon : wKing, id : 61, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 62, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 63, side : 'w', higlight : false}, {piece : Object.create(rook), icon : wRook, id : 64, side : 'w', higlight : false},
                                         ]) 
-    
-    
-
-
 
     const movePiece = (id) => {
+        
         let temp = turn
         let tempBoard = [...board];
-        console.log(waiting, temp, turn)
+        console.log(id)
         if(board[id - 1].side === turn) {
-            tempBoard[id-1].highlight = true
-            turn = waiting
-            waiting = temp
-            setBoard(tempBoard) 
-            
+            if(primary != -1) {
+                tempBoard[primary].highlight = false
+            }
+            primary = id - 1;
+            tempBoard[id - 1].highlight = true
+            setBoard(tempBoard)    
+        }
+        else if(primary != -1) {
+            if(board[primary].piece.move(primary, id - 1, board)) {
+                tempBoard[id - 1] = {...board[primary]}
+                tempBoard[id - 1].id = id;
+                tempBoard[id - 1].highlight = false
+                tempBoard[primary] = {piece : null, icon : "", id : primary + 1, side : null, highlight : false}
+                setBoard(tempBoard)
+                primary = -1;
+                turn = waiting
+                waiting = temp
+            }
         }
     }
 
-
-    
     return (   
         <div className="chessBoard">
             {

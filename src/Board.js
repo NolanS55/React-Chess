@@ -49,15 +49,35 @@ const pawn = {
 
 const knight = {
     value: 3,
-    move : function(val) {
-
+    move : function(oldPos, newPos, board) {//messy fix it later
+        if((oldPos + 1) % 8 != 0) {
+            if((oldPos - 15 === newPos) || (oldPos + 17 === newPos)) {
+                return true
+            }
+        }
+        else if((oldPos) % 8 != 0) {
+            if((oldPos - 17 === newPos) || (oldPos + 15 === newPos)) {
+                return true
+            }
+        }
+        else if(((oldPos + 1) % 8 != 0) && ((oldPos + 2) % 8 != 0)) {
+            if(((oldPos + 2) + 8 === newPos) || (oldPos - 6 === newPos)) {
+                return true
+            }
+        }
+        else if(((oldPos - 1) % 8 != 0) && (oldPos % 8 != 0)) {
+            if(((oldPos + 6) === newPos) || (oldPos - 10 === newPos)) {
+                return true
+            }
+        }
+        return false
     }
 }
 
 const bishop = {
     value : 3,
     move : function(oldPos, newPos, board) {
-
+       
     }
 }
 
@@ -70,15 +90,15 @@ const rook = {
             dif = dif * -1
         }
         if((dif < 7 || dif % 8 == 0) || (dif === 7 && (((oldPos + 1) % 8 === 0 && (newPos + 1) % 8 === 1) || ((newPos + 1) % 8 === 0 && (oldPos + 1) % 8 === 1)))) {//This is so messy but it works: FIX LATER
+            let start = Math.min(newPos, oldPos)
+            let end = Math.max(newPos, oldPos)
             if(dif < 8) {
-                if(board.slice(oldPos + 1, newPos).filter((tile)  => tile.piece != null).length != 0) {
+                if(board.slice(start + 1, end).filter((tile)  => tile.piece != null).length != 0) {
                     return false
                 }
             }
             else if(dif > 8) {
                 //always start with lowest
-                let start = Math.min(newPos, oldPos)
-                let end = Math.max(newPos, oldPos)
                 for(let i = start + 8; i != end; i += 8) {
 
                     if(board[i].piece != null) {
@@ -120,14 +140,14 @@ const Board = () => {
     var colorTwo = 'green'
     var colourHold = ''
 
-    const [board, setBoard] = useState([{piece : Object.create(rook), icon : bRook, id : 1, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 2, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 3, side : 'b', higlight : false}, {piece : Object.create(queen), icon : bQueen, id : 4, side : 'b', higlight : false}, {piece : Object.create(king), icon : bKing, id : 5, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 6, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 7, side : 'b', higlight : false}, {piece : Object.create(rook), icon : bRook, id : 8, side : 'b', higlight : false},
+    const [board, setBoard] = useState([{piece : Object.create(rook), icon : bRook, id : 1, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 2, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 3, side : 'b', higlight : false}, {piece : Object.create(queen), icon : bQueen, id : 4, side : 'b', higlight : false}, {piece : Object.create(king), icon : bKing, id : 5, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 6, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 7, side : 'b', higlight : false}, {piece : Object.create(rook), icon : bRook, id : 8, side : 'b', higlight : false},
                                         {piece : Object.create(pawn), icon : bPawn, id : 9, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 10, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 11, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 12, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 13, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 14, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 15, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 16, side : 'b', highlight : false},
                                         {piece : null, icon : "", id : 17, side : null, highlight : false}, {piece : null, icon : "", id : 18, side : null, highlight : false}, {piece : null, icon : "", id : 19, side : null, highlight : false}, {piece : null, icon : "", id : 20, side : null, highlight : false}, {piece : null, icon : "", id : 21, side : null, highlight : false}, {piece : null, icon : "", id : 22, side : null, highlight : false}, {piece : null, icon : "", id : 23, side : null, highlight : false}, {piece : null, icon : "", id : 24, side : null, highlight : false},
                                         {piece : null, icon : "", id : 25, side : null, highlight : false}, {piece : null, icon : "", id : 26, side : null, highlight : false}, {piece : null, icon : "", id : 27, side : null, highlight : false}, {piece : null, icon : "", id : 28, side : null, highlight : false}, {piece : null, icon : "", id : 29, side : null, highlight : false}, {piece : null, icon : "", id : 30, side : null, highlight : false}, {piece : null, icon : "", id : 31, side : null, highlight : false}, {piece : null, icon : "", id : 32, side : null, highlight : false},
                                         {piece : null, icon : "", id : 33, side : null, highlight : false}, {piece : null, icon : "", id : 34, side : null, highlight : false}, {piece : null, icon : "", id : 35, side : null, highlight : false}, {piece : null, icon : "", id : 36, side : null, highlight : false}, {piece : null, icon : "", id : 37, side : null, highlight : false}, {piece : null, icon : "", id : 38, side : null, highlight : false}, {piece : null, icon : "", id : 39, side : null, highlight : false}, {piece : null, icon : "", id : 40, side : null, highlight : false},
                                         {piece : null, icon : "", id : 41, side : null, highlight : false}, {piece : null, icon : "", id : 42, side : null, highlight : false}, {piece : null, icon : "", id : 43, side : null, highlight : false}, {piece : null, icon : "", id : 44, side : null, highlight : false}, {piece : null, icon : "", id : 45, side : null, highlight : false}, {piece : null, icon : "", id : 46, side : null, highlight : false}, {piece : null, icon : "", id : 47, side : null, highlight : false}, {piece : null, icon : "", id : 48, side : null, highlight : false},
                                         {piece : Object.create(pawn), icon : wPawn, id : 49, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 50, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 51, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 52, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 53, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 54, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 55, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 56, side : 'w', highlight : false},
-                                        {piece : Object.create(rook), icon : wRook, id : 57, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 58, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 59, side : 'w', higlight : false}, {piece : Object.create(queen), icon : wQueen, id : 60, side : 'w', higlight : false}, {piece : Object.create(king), icon : wKing, id : 61, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 62, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 63, side : 'w', higlight : false}, {piece : Object.create(rook), icon : wRook, id : 64, side : 'w', higlight : false},
+                                        {piece : Object.create(rook), icon : wRook, id : 57, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 58, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 59, side : 'w', higlight : false}, {piece : Object.create(queen), icon : wQueen, id : 60, side : 'w', higlight : false}, {piece : Object.create(king), icon : wKing, id : 61, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 62, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 63, side : 'w', higlight : false}, {piece : Object.create(rook), icon : wRook, id : 64, side : 'w', higlight : false},
                                         ]) 
 
     const movePiece = (id) => {
@@ -163,13 +183,12 @@ const Board = () => {
                 board.map((tile) => {
                     let oldCone = colorOne
                     let oldCtwo = colorTwo
-                    console.log(tile.id)
                     if(tile.id % 8 === 0) {
-                        console.log("9Gang")
                         colourHold = colorOne
                         colorOne = colorTwo
                         colorTwo = colourHold
                     }
+                    
                     return <div className="sqaure" style={(tile.id % 2 === 0) ? {backgroundColor : oldCone} : {backgroundColor : oldCtwo}} key={tile.id} >
                         <button onClick={() => (movePiece(tile.id))} style={tile.highlight ? {backgroundColor : 'red'} : {}}><img src={tile.icon}></img></button>
                     </div>

@@ -18,8 +18,10 @@ import { render } from '@testing-library/react'
 const pawn = {
     value : 1,
     firstMove: true,
+    enpasent: false,
     move : function(oldPos, newPos, board) {
-        console.log((newPos < oldPos) ? "yes" : " no")
+        console.log(this.enpasent)
+        
         if((board[oldPos].side === 'w' && newPos > oldPos) || (board[oldPos].side === 'b' && newPos < oldPos)) {
             return false;
         }
@@ -27,13 +29,20 @@ const pawn = {
         if(dif < 0) {
             dif = dif * -1
         }
+       
         if(((dif === 16 && this.firstMove === true) || (dif === 8)) && board[newPos].piece === null) {//checks for piece moving foward
+            this.enpasent = false;
+            if(dif === 16) {
+                this.enpasent = true
+            }
             this.firstMove = false;
             return true;
         }
         if((dif === 9 || dif === 7) && ((board[newPos].side != null) && board[oldPos].side != board[newPos].side)) {//capture check
+            this.enpasent = false;
             return true;
         }
+        return false
     }
 }
 
@@ -54,8 +63,31 @@ const bishop = {
 const rook = {
     value : 5,
     canCastle : true,
-    move : function(val) {
-        console.log(val)
+    move : function(oldPos, newPos, board) {
+        let dif = newPos - oldPos;//temporary converts units to positive to see if piece is moving correctly
+        if(dif < 0) {
+            dif = dif * -1
+        }
+        if((dif < 7 || dif % 8 == 0) || (dif === 7 && (((oldPos + 1) % 8 === 0 && (newPos + 1) % 8 === 1) || ((newPos + 1) % 8 === 0 && (oldPos + 1) % 8 === 1)))) {//This is so messy but it works: FIX LATER
+            if(dif < 8) {
+                if(board.slice(oldPos + 1, newPos).filter((tile)  => tile.piece != null).length != 0) {
+                    return false
+                }
+            }
+            else if(dif > 8) {
+                //always start with lowest
+                let start = Math.min(newPos, oldPos)
+                let end = Math.max(newPos, oldPos)
+                for(let i = start + 8; i != end; i += 8) {
+
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+            this.canCastle = false
+            return true
+        }
     }
 }
 

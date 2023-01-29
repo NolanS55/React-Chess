@@ -14,6 +14,7 @@ import bKing from './icons/bKing.png'
 
 import { useState, useEffect } from 'react'
 import { render } from '@testing-library/react'
+import { typeImplementation } from '@testing-library/user-event/dist/type/typeImplementation'
 
 const pawn = {
     value : 1,
@@ -55,7 +56,7 @@ const knight = {
 
 const bishop = {
     value : 3,
-    move : function(val) {
+    move : function(oldPos, newPos, board) {
 
     }
 }
@@ -115,7 +116,10 @@ var waiting = 'b'
 var primary = -1;
 
 const Board = () => {
-    
+    var colorOne = 'blue'
+    var colorTwo = 'green'
+    var colourHold = ''
+
     const [board, setBoard] = useState([{piece : Object.create(rook), icon : bRook, id : 1, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 2, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 3, side : 'b', higlight : false}, {piece : Object.create(queen), icon : bQueen, id : 4, side : 'b', higlight : false}, {piece : Object.create(king), icon : bKing, id : 5, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 6, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 7, side : 'b', higlight : false}, {piece : Object.create(rook), icon : bRook, id : 8, side : 'b', higlight : false},
                                         {piece : Object.create(pawn), icon : bPawn, id : 9, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 10, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 11, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 12, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 13, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 14, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 15, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 16, side : 'b', highlight : false},
                                         {piece : null, icon : "", id : 17, side : null, highlight : false}, {piece : null, icon : "", id : 18, side : null, highlight : false}, {piece : null, icon : "", id : 19, side : null, highlight : false}, {piece : null, icon : "", id : 20, side : null, highlight : false}, {piece : null, icon : "", id : 21, side : null, highlight : false}, {piece : null, icon : "", id : 22, side : null, highlight : false}, {piece : null, icon : "", id : 23, side : null, highlight : false}, {piece : null, icon : "", id : 24, side : null, highlight : false},
@@ -156,11 +160,20 @@ const Board = () => {
     return (   
         <div className="chessBoard">
             {
-                board.map((tile) => (
-                    <div className="sqaure" key={tile.id} style={tile.highlight ? {backgroundColor : 'red'} : {}}>
-                        <button onClick={() => (movePiece(tile.id))}><img src={tile.icon}></img></button>
+                board.map((tile) => {
+                    let oldCone = colorOne
+                    let oldCtwo = colorTwo
+                    console.log(tile.id)
+                    if(tile.id % 8 === 0) {
+                        console.log("9Gang")
+                        colourHold = colorOne
+                        colorOne = colorTwo
+                        colorTwo = colourHold
+                    }
+                    return <div className="sqaure" style={(tile.id % 2 === 0) ? {backgroundColor : oldCone} : {backgroundColor : oldCtwo}} key={tile.id} >
+                        <button onClick={() => (movePiece(tile.id))} style={tile.highlight ? {backgroundColor : 'red'} : {}}><img src={tile.icon}></img></button>
                     </div>
-                ))
+                })        
             }
         </div>
         

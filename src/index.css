@@ -1,21 +1,23 @@
 .chessBoard {
   display: grid;
-  grid-template-columns: repeat(8, 5vw);
-  width: 40vw;
-  height: 40vw;
+  grid-template-columns: repeat(8, 4vw);
+  width: 32vw;
+  height: 32vw;
   margin: auto;
+  background: none;
+  overflow: auto;
 }
 
 .square {
-  width: 5vw;
-  height: 5vw;
+  width: 4vw;
+  height: 4vw;
   overflow: auto;
   background-color:black;
 }
 
 button {
-  width: 5vw;
-  height: 5vw;
+  width: 4vw;
+  height: 4vw;
   padding: 0;
   display: flex;
   justify-content: center;

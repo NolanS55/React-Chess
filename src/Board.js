@@ -20,9 +20,7 @@ const pawn = {
     value : 1,
     firstMove: true,
     enpasent: false,
-    move : function(oldPos, newPos, board) {
-        console.log(this.enpasent)
-        
+    move : function(oldPos, newPos, board) { 
         if((board[oldPos].side === 'w' && newPos > oldPos) || (board[oldPos].side === 'b' && newPos < oldPos)) {
             return false;
         }
@@ -50,22 +48,24 @@ const pawn = {
 const knight = {
     value: 3,
     move : function(oldPos, newPos, board) {//messy fix it later
+        console.log((oldPos) % 8)
         if((oldPos + 1) % 8 != 0) {
             if((oldPos - 15 === newPos) || (oldPos + 17 === newPos)) {
                 return true
             }
         }
-        else if((oldPos) % 8 != 0) {
+        if((oldPos) % 8 != 0) {
+            console.log("d")
             if((oldPos - 17 === newPos) || (oldPos + 15 === newPos)) {
                 return true
             }
         }
-        else if(((oldPos + 1) % 8 != 0) && ((oldPos + 2) % 8 != 0)) {
+        if(((oldPos + 1) % 8 != 0) && ((oldPos + 2) % 8 != 0)) {
             if(((oldPos + 2) + 8 === newPos) || (oldPos - 6 === newPos)) {
                 return true
             }
         }
-        else if(((oldPos - 1) % 8 != 0) && (oldPos % 8 != 0)) {
+        if(((oldPos - 1) % 8 != 0) && (oldPos % 8 != 0)) {
             if(((oldPos + 6) === newPos) || (oldPos - 10 === newPos)) {
                 return true
             }
@@ -77,7 +77,54 @@ const knight = {
 const bishop = {
     value : 3,
     move : function(oldPos, newPos, board) {
-       
+        //crate own rows using - 8 from cvalue and check if value is less or greater then that
+        let row = oldPos + 1;
+        if(row % 8 > ((newPos + 1) % 8)) {
+            console.log("here")
+            if(oldPos > newPos) {
+                for(let i = oldPos - 9; i >= newPos; i -= 9) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+            else if(newPos > oldPos) {
+                for(let i = oldPos + 7; i <= newPos; i += 7) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+        }
+        else if(row % 8 < ((newPos + 1) % 8)) {
+            if(newPos > oldPos) {
+                for(let i = oldPos + 9; i <= newPos; i += 9) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+            else if(oldPos > newPos) {
+                for(let i = oldPos - 7; i >= newPos; i -= 7) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+        }
+        return false
     }
 }
 
@@ -89,7 +136,9 @@ const rook = {
         if(dif < 0) {
             dif = dif * -1
         }
-        if((dif < 7 || dif % 8 == 0) || (dif === 7 && (((oldPos + 1) % 8 === 0 && (newPos + 1) % 8 === 1) || ((newPos + 1) % 8 === 0 && (oldPos + 1) % 8 === 1)))) {//This is so messy but it works: FIX LATER
+        let leftRow = oldPos - (oldPos % 8)
+        let rightRow = oldPos + (8 - (oldPos % 8))
+        if((oldPos % 8 === newPos % 8) || (newPos >= leftRow && newPos < rightRow)) {//(dif < 7 || dif % 8 == 0) || (dif === 7 && (((oldPos + 1) % 8 === 0 && (newPos + 1) % 8 === 1) || ((newPos + 1) % 8 === 0 && (oldPos + 1) % 8 === 1)))) {//This is so messy but it works: FIX LATER-Bro it dont even work
             let start = Math.min(newPos, oldPos)
             let end = Math.max(newPos, oldPos)
             if(dif < 8) {
@@ -100,7 +149,6 @@ const rook = {
             else if(dif > 8) {
                 //always start with lowest
                 for(let i = start + 8; i != end; i += 8) {
-
                     if(board[i].piece != null) {
                         return false
                     }
@@ -114,8 +162,81 @@ const rook = {
 
 const queen = {
     value: 9,
-    move : function(val) {
+    move : function(oldPos, newPos, board) {
 
+        let dif = newPos - oldPos;//temporary converts units to positive to see if piece is moving correctly
+        if(dif < 0) {
+            dif = dif * -1
+        }
+        let leftRow = oldPos - (oldPos % 8)
+        let rightRow = oldPos + (8 - (oldPos % 8))
+        if((oldPos % 8 === newPos % 8) || (newPos >= leftRow && newPos < rightRow)) {//(dif < 7 || dif % 8 == 0) || (dif === 7 && (((oldPos + 1) % 8 === 0 && (newPos + 1) % 8 === 1) || ((newPos + 1) % 8 === 0 && (oldPos + 1) % 8 === 1)))) {//This is so messy but it works: FIX LATER-Bro it dont even work
+            let start = Math.min(newPos, oldPos)
+            let end = Math.max(newPos, oldPos)
+            if(dif < 8) {
+                if(board.slice(start + 1, end).filter((tile)  => tile.piece != null).length != 0) {
+                    return false
+                }
+            }
+            else if(dif > 8) {
+                //always start with lowest
+                for(let i = start + 8; i != end; i += 8) {
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+            this.canCastle = false
+            return true
+        }
+        console.log("Started bishop movement")
+        let row = oldPos + 1;
+        if(row % 8 > ((newPos + 1) % 8)) {
+            console.log("here")
+            if(oldPos > newPos) {
+                for(let i = oldPos - 9; i >= newPos; i -= 9) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+            else if(newPos > oldPos) {
+                for(let i = oldPos + 7; i <= newPos; i += 7) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+        }
+        else if(row % 8 < ((newPos + 1) % 8)) {
+            if(newPos > oldPos) {
+                for(let i = oldPos + 9; i <= newPos; i += 9) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+            else if(oldPos > newPos) {
+                for(let i = oldPos - 7; i >= newPos; i -= 7) {
+                    if(i === newPos) {
+                        return true
+                    }
+                    if(board[i].piece != null) {
+                        return false
+                    }
+                }
+            }
+        }
+        return false
     }
 }
 
@@ -126,8 +247,8 @@ const king = {
     move: function() {
 
     },
-    canMove :  function() {
-
+    inCheck :  function(side, board) {
+        let kingPos = board.filter((tile) => (tile.side === side && tile.piece.value === 11)).id - 1
     }
 }
 
@@ -188,7 +309,6 @@ const Board = () => {
                         colorOne = colorTwo
                         colorTwo = colourHold
                     }
-                    
                     return <div className="sqaure" style={(tile.id % 2 === 0) ? {backgroundColor : oldCone} : {backgroundColor : oldCtwo}} key={tile.id} >
                         <button onClick={() => (movePiece(tile.id))} style={tile.highlight ? {backgroundColor : 'red'} : {}}><img src={tile.icon}></img></button>
                     </div>

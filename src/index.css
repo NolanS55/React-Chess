@@ -23,6 +23,7 @@ button {
   justify-content: center;
   background-color: transparent;
   align-items: center;
+  border: none;
 }
 
 button img {

@@ -11,6 +11,8 @@ import bBishop from './icons/bBishop.png'
 import bRook from './icons/bRook.png'
 import bQueen from './icons/bQueen.png'
 import bKing from './icons/bKing.png'
+import moveSound from './sounds/move.wav'
+import checkSound from './sounds/check.wav'
 
 import { useState, useEffect } from 'react'
 import { render } from '@testing-library/react'
@@ -305,6 +307,7 @@ const Board = () => {
     const movePiece = (id) => {
         let temp = turn
         let tempBoard = [...board]
+       
         let curKing = board.filter((tile) => (tile.side === turn && tile.piece.value === 11))[0]
         
         if(board[id - 1].side === turn) {
@@ -334,9 +337,12 @@ const Board = () => {
 
                     if(curKing.piece.inCheck(waiting, turn, tempBoard)) {//highlight enemy king
                         tempBoard[board.filter((tile) => (tile.side === waiting && tile.piece.value === 11))[0].id - 1].highlight = true;
+                        new Audio(moveSound).play()
+                        new Audio(checkSound).play()
                     }
                     else{
-                        tempBoard[board.filter((tile) => (tile.side === waiting && tile.piece.value === 11))[0].id - 1].highlight = false;
+                        tempBoard[board.filter((tile) => (tile.side === turn && tile.piece.value === 11))[0].id - 1].highlight = false;
+                        new Audio(moveSound).play()
                     }
 
                     setBoard(tempBoard)
@@ -362,7 +368,7 @@ const Board = () => {
                         colorTwo = colourHold
                     }
                     return <div className="sqaure" style={(tile.id % 2 === 0) ? {backgroundColor : oldCone} : {backgroundColor : oldCtwo}} key={tile.id}>
-                        <button onClick={() => (movePiece(tile.id))} style={tile.highlight ? {backgroundColor : '#f33a30'} : {}}><img src={tile.icon}></img></button>
+                        <button onClick={() => (movePiece(tile.id))} style={tile.highlight ? {backgroundColor : '#f33a30'} : {}} ><img src={tile.icon}></img></button>
                     </div>
                     
                 })        

@@ -24,12 +24,10 @@ const pawn = {
         if((board[oldPos].side === 'w' && newPos > oldPos) || (board[oldPos].side === 'b' && newPos < oldPos)) {//makes sure piece is moving in the correct direction
             return false;
         }
-
         let dif = newPos - oldPos;
         if(dif < 0) {
             dif = dif * -1
         }
-       
         if(((dif === 16 && this.firstMove === true) || (dif === 8)) && board[newPos].piece === null) {//checks for piece moving foward
             this.enpasent = false;
             if(dif === 16) {//makes it so enpasent is possible
@@ -41,12 +39,23 @@ const pawn = {
         if((dif === 9 || dif === 7) && ((board[newPos].side != null))) {//capture check
             return true;
         }
-        if((dif === 9  || dif === 7) && ((board[newPos -8].side != null) && (board[newPos - 8].piece.value === 1))) {//capture check
-            if(board[newPos - 8].piece.enpasent) {
-                board[newPos - 8] = {piece : null, icon : "", id : newPos -7, side : null, highlight : false}
-                return true
+        if(board[oldPos].side === 'b') {
+            if((dif === 9  || dif === 7) && ((board[newPos -8].side != null) && (board[newPos - 8].piece.value === 1))) {//capture check
+                if(board[newPos - 8].piece.enpasent) {
+                    board[newPos - 8] = {piece : null, icon : "", id : newPos -7, side : null, highlight : false}
+                    return true
+                }
             }
         }
+        else {
+            if((dif === 9  || dif === 7) && ((board[newPos  + 8].side != null) && (board[newPos + 8].piece.value === 1))) {//capture check
+                if(board[newPos + 8].piece.enpasent) {
+                    board[newPos + 8] = {piece : null, icon : "", id : newPos  + 7, side : null, highlight : false}
+                    return true
+                }
+            }
+        }
+        
         return false
     }
 }

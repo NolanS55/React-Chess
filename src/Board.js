@@ -63,14 +63,12 @@ const pawn = {
 const knight = {
     value: 3,
     move : function(oldPos, newPos, board) {//messy fix it later
-        console.log((oldPos) % 8)
         if((oldPos + 1) % 8 != 0) {
             if((oldPos - 15 === newPos) || (oldPos + 17 === newPos)) {
                 return true
             }
         }
         if((oldPos) % 8 != 0) {
-            console.log("d")
             if((oldPos - 17 === newPos) || (oldPos + 15 === newPos)) {
                 return true
             }
@@ -94,9 +92,7 @@ const bishop = {
     move : function(oldPos, newPos, board) {
         //crate own rows using - 8 from cvalue and check if value is less or greater then that
         let row = oldPos;
-        console.log("Row:", row, "New Row:", newPos)
         if(row % 8 > ((newPos) % 8)) {
-            console.log("here")
             if(oldPos > newPos) {
                 for(let i = oldPos - 9; i >= newPos; i -= 9) {
                     if(i === newPos) {
@@ -258,18 +254,28 @@ const king = {
     value: 11,
     checked: false,
     canCastle: true,
-    move: function() {
-
+    move: function(oldPos, newPos,  board) {
+        let dif = newPos - oldPos;//temporary converts units to positive to see if piece is moving correctly
+        if(dif < 0) {
+            dif = dif * -1
+        }
+        if(dif === 1 || dif === 7 || dif === 9 || dif === 8) {
+            return true
+        }
     },
     inCheck :  function(side, opposing, board) {
-        let kingPos = board.filter((tile) => (tile.side === side && tile.piece.value === 11)).id - 1
-        let leftRow = kingPos - (kingPos % 8)
-        let rightRow = kingPos + (8 - (kingPos % 8))
-        for(let i = kingPos; i < leftRow; i++) {
-            if(board[i].side === opposing) {
-
+        let kingPos = board.filter((tile) => (tile.side === side && tile.piece.value === 11))[0].id - 1
+        for(let i = 0; i < 64; i++) {
+            if(board[i].piece != null && board[i].side === opposing) {
+                if(board[i].piece.move(i , kingPos, board)) {
+                    return true
+                }
             }
         }
+
+        return false
+        
+        
 
     }
 }
@@ -277,7 +283,7 @@ const king = {
 var turn = 'w'
 var waiting = 'b'
 var primary = -1;
-var  holdPawn = -1
+var holdPawn = -1
 
 const Board = () => {
     var colorOne = '#50af6e'
@@ -293,12 +299,14 @@ const Board = () => {
                                         {piece : Object.create(pawn), icon : wPawn, id : 49, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 50, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 51, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 52, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 53, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 54, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 55, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 56, side : 'w', highlight : false},
                                         {piece : Object.create(rook), icon : wRook, id : 57, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 58, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 59, side : 'w', higlight : false}, {piece : Object.create(queen), icon : wQueen, id : 60, side : 'w', higlight : false}, {piece : Object.create(king), icon : wKing, id : 61, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 62, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 63, side : 'w', higlight : false}, {piece : Object.create(rook), icon : wRook, id : 64, side : 'w', higlight : false},
                                         ]) 
-    var tempBoard = [...board]
+    
 
 
     const movePiece = (id) => {
-        
         let temp = turn
+        let tempBoard = [...board]
+        let curKing = board.filter((tile) => (tile.side === turn && tile.piece.value === 11))[0]
+        
         if(board[id - 1].side === turn) {
             if(primary != -1) {
                 tempBoard[primary].highlight = false
@@ -309,24 +317,37 @@ const Board = () => {
         }
         else if(primary != -1) {
             if(board[primary].piece.move(primary, id - 1, tempBoard)) {
-                if(holdPawn != -1) {//enpassent control
-                    board[holdPawn - 1].piece.enpasent = false
-                    holdPawn = -1;
-                }
-                if(board[primary].piece.value === 1) {
-                    holdPawn = id
-                }
-
+                
+                
                 tempBoard[id - 1] = {...board[primary]}
                 tempBoard[id - 1].id = id;
                 tempBoard[id - 1].highlight = false
                 tempBoard[primary] = {piece : null, icon : "", id : primary + 1, side : null, highlight : false}
-                setBoard(tempBoard)
-                primary = -1;
-                turn = waiting
-                waiting = temp
+                if(!curKing.piece.inCheck(turn, waiting, tempBoard)) {
+                    if(holdPawn != -1) {//enpassent control
+                        board[holdPawn - 1].piece.enpasent = false
+                        holdPawn = -1;
+                    }
+                    if(board[primary].piece.value === 1) {
+                        holdPawn = id
+                    }
+
+                    if(curKing.piece.inCheck(waiting, turn, tempBoard)) {//highlight enemy king
+                        tempBoard[board.filter((tile) => (tile.side === waiting && tile.piece.value === 11))[0].id - 1].highlight = true;
+                    }
+                    else{
+                        tempBoard[board.filter((tile) => (tile.side === waiting && tile.piece.value === 11))[0].id - 1].highlight = false;
+                    }
+
+                    setBoard(tempBoard)
+                    primary = -1;
+                    turn = waiting
+                    waiting = temp
+                }
             }
         }
+
+
     }
 
     return (   
@@ -343,6 +364,7 @@ const Board = () => {
                     return <div className="sqaure" style={(tile.id % 2 === 0) ? {backgroundColor : oldCone} : {backgroundColor : oldCtwo}} key={tile.id}>
                         <button onClick={() => (movePiece(tile.id))} style={tile.highlight ? {backgroundColor : '#f33a30'} : {}}><img src={tile.icon}></img></button>
                     </div>
+                    
                 })        
             }
         </div>

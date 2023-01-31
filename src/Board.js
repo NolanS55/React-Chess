@@ -41,18 +41,19 @@ const pawn = {
         if((dif === 9 || dif === 7) && ((board[newPos].side != null))) {//capture check
             return true;
         }
+        
         if(board[oldPos].side === 'b') {
-            if((dif === 9  || dif === 7) && ((board[newPos -8].side != null) && (board[newPos - 8].piece.value === 1))) {//capture check
+            if((dif === 9  || dif === 7) && ((board[newPos - 8].side != null) && (board[newPos - 8].piece.value === 1))) {//capture check
                 if(board[newPos - 8].piece.enpasent) {
-                    board[newPos - 8] = {piece : null, icon : "", id : newPos -7, side : null, highlight : false}
+                    board[newPos - 8] = {piece : null, icon : "", id : newPos - 7, side : null, highlight : false}
                     return true
                 }
             }
         }
-        else {
-            if((dif === 9  || dif === 7) && ((board[newPos  + 8].side != null) && (board[newPos + 8].piece.value === 1))) {//capture check
+        else if(board[oldPos].side === 'w') {
+            if((dif === 9  || dif === 7) && ((board[newPos  + 8].side != null) && (board[newPos + 8].piece.value === 1))) {
                 if(board[newPos + 8].piece.enpasent) {
-                    board[newPos + 8] = {piece : null, icon : "", id : newPos  + 7, side : null, highlight : false}
+                    board[newPos + 8] = {piece : null, icon : "", id : newPos  + 9, side : null, highlight : false}
                     return true
                 }
             }
@@ -325,7 +326,10 @@ const Board = () => {
                 tempBoard[id - 1] = {...board[primary]}
                 tempBoard[id - 1].id = id;
                 tempBoard[id - 1].highlight = false
+              
+                
                 tempBoard[primary] = {piece : null, icon : "", id : primary + 1, side : null, highlight : false}
+            
                 if(!curKing.piece.inCheck(turn, waiting, tempBoard)) {
                     if(holdPawn != -1) {//enpassent control
                         board[holdPawn - 1].piece.enpasent = false
@@ -337,7 +341,6 @@ const Board = () => {
 
                     if(curKing.piece.inCheck(waiting, turn, tempBoard)) {//highlight enemy king
                         tempBoard[board.filter((tile) => (tile.side === waiting && tile.piece.value === 11))[0].id - 1].highlight = true;
-                        new Audio(moveSound).play()
                         new Audio(checkSound).play()
                     }
                     else{

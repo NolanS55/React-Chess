@@ -340,7 +340,7 @@ const Board = () => {
                                 console.log(mateBoard[i].id, mateBoard[j].id)
                             }
 
-                        }
+                                                             }
                     }
                 }
             }
@@ -398,8 +398,6 @@ const Board = () => {
                 }
             }
         }
-
-
     }
 
     if(!checkMated()) {

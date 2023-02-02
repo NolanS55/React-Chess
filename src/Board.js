@@ -38,7 +38,7 @@ const pawn = {
             this.firstMove = false;
             return true;
         }
-        if((dif === 9 || dif === 7) && ((board[newPos].side != null))) {//capture check
+        if(((dif === 9 && oldPos % 8 != 0) || (dif === 7 && oldPos % 8 != 1)) && ((board[newPos].side != null))) {//capture check
             return true;
         }
         
@@ -340,7 +340,7 @@ const Board = () => {
                                 console.log(mateBoard[i].id, mateBoard[j].id)
                             }
 
-                                                             }
+                        }
                     }
                 }
             }

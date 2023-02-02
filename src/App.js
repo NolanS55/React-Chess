@@ -1,10 +1,10 @@
-import Board from "./Board";
+import Game from "./Game";
 
 function App() {
   const arr = [<div>hi</div>,<div>a</div>]
   return (
     <div className="App">
-      <Board></Board>
+      <Game></Game>
     </div>
   );
 }

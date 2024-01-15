@@ -38,7 +38,7 @@ const pawn = {
             this.firstMove = false;
             return true;
         }
-        if(((dif === 9 && oldPos % 8 != 0) || (dif === 7 && oldPos % 8 != 1)) && ((board[newPos].side != null))) {//capture check
+        if(((dif === 9) || (dif === 7 && oldPos % 8 != 1)) && ((board[newPos].side != null))) {//capture check
             return true;
         }
         
@@ -91,7 +91,7 @@ const knight = {
 }
 
 const bishop = {
-    value : 30,
+    value : 3,
     move : function(oldPos, newPos, board) {
         //crate own rows using - 8 from value and check if value is less or greater then that
         let row = oldPos;
@@ -319,6 +319,8 @@ const Board = () => {
         {piece : Object.create(pawn), icon : wPawn, id : 49, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 50, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 51, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 52, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 53, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 54, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 55, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 56, side : 'w', highlight : false},
         {piece : Object.create(rook), icon : wRook, id : 57, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 58, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 59, side : 'w', higlight : false}, {piece : Object.create(queen), icon : wQueen, id : 60, side : 'w', higlight : false}, {piece : Object.create(king), icon : wKing, id : 61, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 62, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 63, side : 'w', higlight : false}, {piece : Object.create(rook), icon : wRook, id : 64, side : 'w', higlight : false},
         ])
+        turn = 'w'
+        waiting = 'b'
     }
     
     const checkMated = () => {
@@ -334,7 +336,6 @@ const Board = () => {
                                 mateBoard[j].id = j + 1;
                                 mateBoard[j].highlight = false
                                 mateBoard[i] = {piece : null, icon : "", id : i + 1, side : null, highlight : false}
-                                console.log(mateBoard, mateBoard.filter((tile) => (tile.side === turn && tile.piece.value === 11))[0].id - 1)
                                 if(!curKing.piece.inCheck(turn, waiting, mateBoard)) {
                                     return false
                                 }

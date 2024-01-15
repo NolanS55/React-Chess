@@ -91,9 +91,9 @@ const knight = {
 }
 
 const bishop = {
-    value : 3,
+    value : 30,
     move : function(oldPos, newPos, board) {
-        //crate own rows using - 8 from cvalue and check if value is less or greater then that
+        //crate own rows using - 8 from value and check if value is less or greater then that
         let row = oldPos;
         if(row % 8 > ((newPos) % 8)) {
             if(oldPos > newPos) {
@@ -270,7 +270,10 @@ const king = {
         
         let kingPos = board.filter((tile) => (tile.side === side && tile.piece.value === 11))[0].id - 1
         for(let i = 0; i < 64; i++) {
+            
             if(board[i].piece != null && board[i].side === opposing) {
+                
+                
                 if(board[i].piece.move(i , kingPos, board)) {
                     
                     this.checked = true;
@@ -317,30 +320,31 @@ const Board = () => {
         {piece : Object.create(rook), icon : wRook, id : 57, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 58, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 59, side : 'w', higlight : false}, {piece : Object.create(queen), icon : wQueen, id : 60, side : 'w', higlight : false}, {piece : Object.create(king), icon : wKing, id : 61, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 62, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 63, side : 'w', higlight : false}, {piece : Object.create(rook), icon : wRook, id : 64, side : 'w', higlight : false},
         ])
     }
+    
     const checkMated = () => {
         let mateBoard = [...board]
-        let curKing = board.filter((tile) => (tile.side === waiting && tile.piece.value === 11))[0]
+        let curKing = board.filter((tile) => (tile.side === turn && tile.piece.value === 11))[0]
         if(curKing.piece.inCheck(turn, waiting, board)) {
             for(let i = 0; i < 64; i++) {//horibly optimized, find a better way to do it
-                if(board[i].side === turn ) {
+                if(mateBoard[i].side === turn) {
                     for(let j = 0; j < 64; j++) {
-                        if(board[i].piece.move(i, j, mateBoard)) {
-                            
-                            mateBoard[j] = {...board[i]}
-                            mateBoard[j].id = j + 1;
-                            mateBoard[j].highlight = false
-                            mateBoard[i] = {piece : null, icon : "", id : i + 1, side : null, highlight : false}
-                            console.log(i, j)
-                            if(!curKing.piece.inCheck(turn, waiting, mateBoard)) {
-                                console.log(board[i].piece)
-                                return false
+                        if(mateBoard[j].side !== turn) {
+                            if(board[i].piece.move(i, j, mateBoard)) {
+                                mateBoard[j] = {...board[i]}
+                                mateBoard[j].id = j + 1;
+                                mateBoard[j].highlight = false
+                                mateBoard[i] = {piece : null, icon : "", id : i + 1, side : null, highlight : false}
+                                console.log(mateBoard, mateBoard.filter((tile) => (tile.side === turn && tile.piece.value === 11))[0].id - 1)
+                                if(!curKing.piece.inCheck(turn, waiting, mateBoard)) {
+                                    return false
+                                }
                             }
                             else {
                                 mateBoard = [...board]
-                                console.log(mateBoard[i].id, mateBoard[j].id)
                             }
-
                         }
+                        mateBoard = [...board]
+                        
                     }
                 }
             }
@@ -348,7 +352,6 @@ const Board = () => {
         }
         return false;
     }
-
 
     const movePiece = (id) => {
         let temp = turn

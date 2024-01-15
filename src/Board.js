@@ -1,4 +1,4 @@
-import './index.css'
+import './css/Board.css'
 import wPawn from './icons/wPawn.png'
 import wKnight from './icons/wKnight.png'
 import wBishop from './icons/wBishop.png'
@@ -17,6 +17,8 @@ import checkSound from './sounds/check.wav'
 import { useState, useEffect } from 'react'
 import { render } from '@testing-library/react'
 import { typeImplementation } from '@testing-library/user-event/dist/type/typeImplementation'
+import { turnAtom, waitAtom } from './store' 
+import { useAtom } from 'jotai'
 
 const pawn = {
     value : 1,
@@ -38,9 +40,17 @@ const pawn = {
             this.firstMove = false;
             return true;
         }
-        if(((dif === 9) || (dif === 7 && oldPos % 8 != 1)) && ((board[newPos].side != null))) {//capture check
-            return true;
+        if(board[oldPos].side === 'w') {
+            if(((dif === 9 && oldPos % 8 !== 0) || (dif === 7 && oldPos % 8 != 1)) && ((board[newPos].side != null))) {//capture check
+                return true;
+            }
         }
+        else {
+            if(((dif === 9) || (dif === 7 && oldPos % 8 != 1)) && ((board[newPos].side != null))) {//capture check
+                return true;
+            }
+        }
+        
         
         if(board[oldPos].side === 'b') {
             if((dif === 9  || dif === 7) && ((board[newPos - 8].side != null) && (board[newPos - 8].piece.value === 1))) {//capture check
@@ -290,8 +300,7 @@ const king = {
     }
 }
 
-var turn = 'w'
-var waiting = 'b'
+
 var primary = -1;
 var holdPawn = -1
 var count = 0
@@ -299,7 +308,9 @@ const Board = () => {
     var colorOne = '#50af6e'
     var colorTwo = '#af5091'
     var colourHold = ''
-    
+    const [turn, setTurn] = useAtom(turnAtom)
+    const [waiting, setWaiting] = useAtom(waitAtom)
+
     const [board, setBoard] = useState([{piece : Object.create(rook), icon : bRook, id : 1, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 2, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 3, side : 'b', higlight : false}, {piece : Object.create(queen), icon : bQueen, id : 4, side : 'b', higlight : false}, {piece : Object.create(king), icon : bKing, id : 5, side : 'b', higlight : false}, {piece : Object.create(bishop), icon : bBishop, id : 6, side : 'b', higlight : false}, {piece : Object.create(knight), icon : bKnight, id : 7, side : 'b', higlight : false}, {piece : Object.create(rook), icon : bRook, id : 8, side : 'b', higlight : false},
                                         {piece : Object.create(pawn), icon : bPawn, id : 9, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 10, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 11, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 12, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 13, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 14, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 15, side : 'b', highlight : false}, {piece : Object.create(pawn), icon : bPawn, id : 16, side : 'b', highlight : false},
                                         {piece : null, icon : "", id : 17, side : null, highlight : false}, {piece : null, icon : "", id : 18, side : null, highlight : false}, {piece : null, icon : "", id : 19, side : null, highlight : false}, {piece : null, icon : "", id : 20, side : null, highlight : false}, {piece : null, icon : "", id : 21, side : null, highlight : false}, {piece : null, icon : "", id : 22, side : null, highlight : false}, {piece : null, icon : "", id : 23, side : null, highlight : false}, {piece : null, icon : "", id : 24, side : null, highlight : false},
@@ -319,8 +330,8 @@ const Board = () => {
         {piece : Object.create(pawn), icon : wPawn, id : 49, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 50, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 51, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 52, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 53, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 54, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 55, side : 'w', highlight : false}, {piece : Object.create(pawn), icon : wPawn, id : 56, side : 'w', highlight : false},
         {piece : Object.create(rook), icon : wRook, id : 57, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 58, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 59, side : 'w', higlight : false}, {piece : Object.create(queen), icon : wQueen, id : 60, side : 'w', higlight : false}, {piece : Object.create(king), icon : wKing, id : 61, side : 'w', higlight : false}, {piece : Object.create(bishop), icon : wBishop, id : 62, side : 'w', higlight : false}, {piece : Object.create(knight), icon : wKnight, id : 63, side : 'w', higlight : false}, {piece : Object.create(rook), icon : wRook, id : 64, side : 'w', higlight : false},
         ])
-        turn = 'w'
-        waiting = 'b'
+        setTurn('w')
+        setWaiting('b')
     }
     
     const checkMated = () => {
@@ -352,6 +363,29 @@ const Board = () => {
             return true
         }
         return false;
+    }
+
+    const promotionCheck = (board, side) => {
+        if(side === 'w') {
+            for(let i = 0; i < 8; i++) {
+                if(board[i].piece !==null) {
+                    if(board[i].piece.value === 1) {
+                        board[i] = {piece : Object.create(queen), icon : wQueen, id : i + 1, side : 'w', higlight : false}
+                        
+                    }
+                }
+            }
+        }
+        else {
+            for(let i = 56; i < 64; i++) {
+                if(board[i].piece !==null) {
+                    if(board[i].piece.value === 1) {
+                        board[i] = {piece : Object.create(queen), icon : bQueen, id : i + 1, side : 'b', higlight : false}
+                    }
+                }
+            } 
+        }
+        return board
     }
 
     const movePiece = (id) => {
@@ -386,6 +420,8 @@ const Board = () => {
                         holdPawn = id
                     }
 
+                    tempBoard = promotionCheck(tempBoard,turn)
+
                     if(curKing.piece.inCheck(waiting, turn, tempBoard)) {//highlight enemy king
                         tempBoard[board.filter((tile) => (tile.side === waiting && tile.piece.value === 11))[0].id - 1].highlight = true;
                         new Audio(checkSound).play()
@@ -394,18 +430,20 @@ const Board = () => {
                         tempBoard[board.filter((tile) => (tile.side === turn && tile.piece.value === 11))[0].id - 1].highlight = false;
                         new Audio(moveSound).play()
                     }
-
+                    
+                    
                     setBoard(tempBoard)
                     primary = -1;
-                    turn = waiting
-                    waiting = temp
+                    let hold = turn
+                    setTurn(waiting)
+                    setWaiting(hold)
                 }
             }
         }
     }
 
     if(!checkMated()) {
-        return (   
+        return (
             <div className="chessBoard">
                 {
                     board.map((tile) => {
@@ -429,8 +467,29 @@ const Board = () => {
     else {
         return (
             <div className='endGame'>
-                {waiting} wins
-                <button onClick={resetGame}>Play Again</button>
+                <div className="chessBoard">
+                {
+                    board.map((tile) => {
+                        let oldCone = colorOne//fix this
+                        let oldCtwo = colorTwo
+                        if(tile.id % 8 === 0) {
+                            colourHold = colorOne
+                            colorOne = colorTwo
+                            colorTwo = colourHold
+                        }
+                        return <div className="sqaure" style={(tile.id % 2 === 0) ? {backgroundColor : oldCone} : {backgroundColor : oldCtwo}} key={tile.id}>
+                            <button><img src={tile.icon}></img></button>
+                        </div>
+                        
+                    })        
+                }
+                </div>
+                <div className='info'>
+                    <h1 style={(waiting === 'b' ? {color: 'black'} : {color:'white'})}>{(waiting === 'b') ? "Black" : 'White'} Wins</h1>
+                    <div className='buttonCen'>
+                    <button onClick={resetGame} style={(waiting === 'b' ? {backgroundColor : 'black', color : 'white'} : {backgroundColor : 'white', color : 'black'})}>Play Again</button>
+                    </div>
+                </div>
             </div>
         )
     }

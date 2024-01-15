@@ -1,8 +1,11 @@
 import Board from './Board'
+import './css/Game.css'
 const Game = () => {
-    return ( <div className="Game">
+    return ( 
+    <div className="Game">
         <Board></Board>
-    </div> );
+    </div> 
+    );
 }
  
 export default Game;

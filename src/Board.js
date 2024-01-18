@@ -269,10 +269,57 @@ const king = {
     canCastle: true,
     move: function(oldPos, newPos,  board) {
         let dif = newPos - oldPos;//temporary converts units to positive to see if piece is moving correctly
+        if(this.canCastle === true) {
+            //queen side
+            if(newPos === (oldPos - 2) && board[oldPos - 4].piece != null) {
+                if(board[oldPos - 4].piece.value === 5 && board[oldPos - 4].piece.canCastle === true) {
+                    console.log("queen")
+                    if(board[oldPos - 4].piece.move(oldPos - 4, oldPos - 1, board)) {
+                        board[oldPos - 4].piece.canCastle = true
+                        for(let i = 0; i < 64; i++) {
+                            if(board[i].piece != null && board[i].side !== board[oldPos].side) {    
+                                if(board[i].piece.move(i , oldPos - 1, board)) {
+                                    console.log(board)
+                                    return false
+                                }
+                            }
+                        }
+                            
+                        board[oldPos - 4] = {piece : null, icon : "", id : (oldPos - 4) + 1, side : null, highlight : false}
+                        board[oldPos - 1] = {piece : Object.create(rook), icon : (board[oldPos].side === 'w') ? wRook : bRook, id : oldPos, side : board[oldPos].side, higlight : false}
+                        console.log(board)
+                        return true
+                    }
+                }
+            }
+            //king side
+            else if(newPos === (oldPos + 2) && board[oldPos + 3] != null) {
+                if(board[oldPos + 3].piece.value === 5 && board[oldPos + 3].piece.canCastle === true) {
+                    if(board[oldPos + 3].piece.move(oldPos + 3, oldPos + 1, board)) {
+                        board[oldPos + 3].piece.canCastle = true
+                        for(let i = 0; i < 64; i++) {
+                            if(board[i].piece != null && board[i].side !== board[oldPos].side) {    
+                                if(board[i].piece.move(i , oldPos + 1, board)) {
+                                    console.log(board)
+                                    return false
+                                }
+                            }
+                        }
+
+                        board[oldPos + 3] = {piece : null, icon : "", id : (oldPos + 3) + 1, side : null, highlight : false}
+                        board[oldPos + 1] = {piece : Object.create(rook), icon : (board[oldPos].side === 'w') ? wRook : bRook, id : oldPos + 2, side : board[oldPos].side, higlight : false}
+                        console.log(board)
+                        return true
+                    }
+                }
+            }
+        }
+        
         if(dif < 0) {
             dif = dif * -1
         }
         if(dif === 1 || dif === 7 || dif === 9 || dif === 8) {
+            this.canCastle = false
             return true
         }
     },
